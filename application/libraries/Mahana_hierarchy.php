@@ -1,5 +1,14 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+/**
+ * Mahana_hierarchy v1.0
+ * Author: Jeff Madsen
+ * Website: www.codebyjeff.com
+ * Twitter: @codebyjeff
+ *
+ */
+
+
 // Based on concept by Ferdy Christant
 // http://ferdychristant.com/blog//archive/DOMM-7QJPM7
 
