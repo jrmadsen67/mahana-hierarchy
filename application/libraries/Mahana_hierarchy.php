@@ -21,7 +21,7 @@
 -- Table structure for table `hierarchy`
 --
 
-CREATE TABLE `genres` (
+CREATE TABLE `hierarchy` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(55) NOT NULL,
   `parent_id` int(11) DEFAULT NULL,
@@ -186,6 +186,34 @@ class Mahana_hierarchy {
     {
     	$row = $this->db->select_max($this->deep, 'max_deep')->get($this->_table)->row_array();
     	return $row['max_deep'] + 1; //deep starts at 0
+    }
+
+    //for use when the data is existing & has parent_id, but no lineage or deep
+    //can be used to repair your data or set it up the first time
+    function resync()
+    {
+        //we could probably just re-write this with two copies of your table, and update. I think this will run safer and leave less to worry
+        $current_data = $this->db->select($this->primary_key. ', ' . $this->parent_id)->get($this->_table)->result_array();
+
+        if (!empty($current_data))
+        {
+            foreach ($current_data as $row) {
+
+                $update[$this->deep] = 0;
+
+                if(!empty($row[$this->parent_id]))
+                {
+                    //get parent info
+                    $parent = $this->get_one($row[$this->parent_id]);
+                    $update[$this->deep] = $parent[$this->deep] + 1;
+                }                   
+
+                $update[$this->lineage] = (empty($parent[$this->lineage]))? str_pad($row[$this->primary_key], 5 ,'0', STR_PAD_LEFT): $parent[$this->lineage].'-'.str_pad($row[$this->primary_key], 5, '0', STR_PAD_LEFT);
+                $this->update($row[$this->primary_key], $update); 
+                unset($parent);
+            }
+        }
+
     }
 
 
