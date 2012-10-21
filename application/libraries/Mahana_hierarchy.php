@@ -193,7 +193,7 @@ class Mahana_hierarchy {
     function resync()
     {
         //we could probably just re-write this with two copies of your table, and update. I think this will run safer and leave less to worry
-        $current_data = $this->db->select($this->primary_key. ', ' . $this->parent_id)->get($this->_table)->result_array();
+        $current_data = $this->db->select($this->primary_key. ', ' . $this->parent_id)->order_by($this->parent_id, 'asc')->get($this->_table)->result_array();
 
         if (!empty($current_data))
         {
