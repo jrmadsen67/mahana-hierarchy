@@ -53,6 +53,12 @@ class Mahana_hierarchy {
 
     protected $deep = 'deep';   
 
+    protected $parent_id_default = null; //match your parent_id default, as null, 0 or whatever
+
+    protected $padding_count = 5;
+
+    protected $padding_string = '0';
+
 
     public function __construct($config= null)
     {
@@ -61,6 +67,10 @@ class Mahana_hierarchy {
         $this->db = $this->ci->load->database($this->db, TRUE);
 
         if(is_array($config)) $this->initialize($config);
+
+        //seems wrong and hacky, but want to make _findChildren()
+        //second param configurable & you can only use constants
+        define('PARENT_ID_DEFAULT', $this->parent_id_default);
 
     }  
 
@@ -200,7 +210,7 @@ class Mahana_hierarchy {
         $insert_id =  $this->db->insert_id();
 
         //update new record's lineage
-        $update[$this->lineage] = (empty($parent[$this->lineage]))? str_pad($insert_id, 5 ,'0', STR_PAD_LEFT): $parent[$this->lineage].'-'.str_pad($insert_id, 5, '0', STR_PAD_LEFT);
+        $update[$this->lineage] = (empty($parent[$this->lineage]))? str_pad($insert_id, $this->padding_count ,$this->padding_string, STR_PAD_LEFT): $parent[$this->lineage].'-'.str_pad($insert_id, $this->padding_count, $this->padding_string, STR_PAD_LEFT);
 
         return $this->update($insert_id, $update);
 
@@ -266,7 +276,7 @@ class Mahana_hierarchy {
                     $update[$this->deep] = $parent[$this->deep] + 1;
                 }                   
 
-                $update[$this->lineage] = (empty($parent[$this->lineage]))? str_pad($row[$this->primary_key], 5 ,'0', STR_PAD_LEFT): $parent[$this->lineage].'-'.str_pad($row[$this->primary_key], 5, '0', STR_PAD_LEFT);
+                $update[$this->lineage] = (empty($parent[$this->lineage]))? str_pad($row[$this->primary_key], $this->padding_count ,$this->padding_string, STR_PAD_LEFT): $parent[$this->lineage].'-'.str_pad($row[$this->primary_key], $this->padding_count, $this->padding_string, STR_PAD_LEFT);
                 $this->update($row[$this->primary_key], $update); 
                 unset($parent);
             }
@@ -276,7 +286,7 @@ class Mahana_hierarchy {
 
 
     // Thank you, http://stackoverflow.com/users/427328/elusive
-    function _findChildren(&$nodeList, $parentId = null) {
+    function _findChildren(&$nodeList, $parentId = PARENT_ID_DEFAULT) {
         $nodes = array();
 
         foreach ($nodeList as $node) {
