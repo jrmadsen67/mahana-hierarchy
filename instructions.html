@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+    
+<!-- Mirrored from oldblog.codebyjeff.com/blog/2012/10/nested-data-with-mahana-hierarchy-library by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 18 Sep 2021 03:08:30 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+        <title>codebyjeff - Nested data with Mahana Hierarchy library</title>
+        <meta name="keywords" content="Laravel Codeigniter freelance programmer">
+        <meta name="author" content="@codebyjeff">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="../../../themes/demo/assets/images/october.png" />
+                <link href="../../../combine/8fe1fd2676514ac08e43d1500ac60c2e-1549348009.css" rel="stylesheet">
+
+<style>
+/* Cowboy edits */
+body{background-color: #eeeeee;}
+.post_title{font-size: 30px !important; }
+.post_date{font-size: 20px !important;margin-left: 20px;}
+</style>
+
+
+    </head>
+    <body>
+
+        <!-- Header -->
+        <header id="layout-header">
+
+            <!-- Nav -->
+            <nav id="layout-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="../../../index.html">codebyjeff</a>
+                    </div>
+                    <div class="collapse navbar-collapse navbar-main-collapse">
+                        <ul class="nav navbar-nav">
+                            <li class=""><a href="../../../code.html">code</a></li>
+                            <li class=""><a href="../../../blog.html">blog</a></li>
+                            <li class=""><a href="../../../newsletter.html">newsletter</a></li>
+                            <li class=""><a href="../../../books.html">books</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+        </header>
+
+        <!-- Content -->
+        <section id="layout-content">
+            <div class="jumbotron">
+    <div class="container">
+    	<div class="row">
+    		<div class="col-md-9">
+        		<h1 class="post_title" >Nested data with Mahana Hierarchy library  <span class="post_date">2012-10-21</span></h1><pre class="code">
+<strong>Note from Jeff:</strong>
+
+Like PDO? Check out how to use it with Codeigniter <br/>
+<a href="http://codebyjeff.com/blog/2013/03/codeigniter-with-pdo">Codeigniter with PDO</a>
+
+Thanks!
+</pre>
+
+
+<p>Nested comments are a nice way to display the flow of a conversation, but figuring out how to pull that data from the tables for display without writing horrible recursive hits on your database is a pain. Nested sets are usually the best solution, but have their pros & cons. I'd like to show you a different technique that works quite well for things like blog comments, using a little CodeIgniter library I threw together.</p>
+
+<p>The idea behind this style is to track the "lineage" of each comment - its parent, grand-parent, etc - all in one field. Then sort on that field. That's it. Like falling off a cliff.</p>
+
+<p>So, a record 3 levels deep might look like:</p>
+
+
+
+<pre class="code">
+
+<table align="left" border="1" cellpadding="2" class="ajax pma_table" height="67" id="table_results" width="600">
+	<thead>
+		<tr>
+			<th class="data grid_edit not_null    nowrap marked" scope="col" style="text-align: left; height: 20px; ">
+				id</th>
+			<th class="data grid_edit not_null" scope="col" style="text-align: left; height: 20px; ">
+				name</th>
+			<th class="data grid_edit     nowrap" scope="col" style="text-align: left; height: 20px; ">
+				article_id</th>
+			<th class="data grid_edit     nowrap" scope="col" style="text-align: left; height: 20px; ">
+				parent_id</th>
+			<th class="data grid_edit" scope="col" style="text-align: left; height: 20px; ">
+				lineage</th>
+			<th class="data grid_edit not_null    nowrap" scope="col" style="text-align: center; height: 20px; ">
+				deep</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr class="odd">
+			<td class="data grid_edit not_null    nowrap marked" style="text-align: left;">
+				<span>1</span></td>
+			<td class="data grid_edit not_null">
+				<span>Parent 1</span></td>
+			<td class="data grid_edit     nowrap" style="text-align: left;">
+				1</td>
+			<th class="data grid_edit     nowrap" style="text-align: left;">
+				<span>0</span></th>
+			<td align="left" class="data grid_edit">
+				<span>00001</span></td>
+			<td align="right" class="data grid_edit not_null    nowrap">
+				0</td>
+		</tr>
+		<tr>
+			<td class="data grid_edit not_null    nowrap marked" style="text-align: left;">
+				2</td>
+			<td class="data grid_edit not_null">
+				Child 1</td>
+			<td class="data grid_edit     nowrap" style="text-align: left;">
+				1</td>
+			<td class="data grid_edit     nowrap" style="text-align: left;">
+				1</td>
+			<td class="data grid_edit" style="text-align: left; width: 100px;">
+				00001-00002</td>
+			<td align="right" class="data grid_edit not_null    nowrap">
+				1</td>
+		</tr>
+		<tr>
+			<td class="data grid_edit not_null    nowrap marked" style="text-align: left;">
+				3</td>
+			<td class="data grid_edit not_null">
+				Child 1 a</td>
+			<td class="data grid_edit     nowrap" style="text-align: left;">
+				1</td>
+			<td class="data grid_edit     nowrap" style="text-align: left;">
+				2</td>
+			<td align="left" class="data grid_edit">
+				00001-00002-00003</td>
+			<td align="right" class="data grid_edit not_null    nowrap">
+				2</td>
+		</tr>
+	</tbody>
+</table>
+</pre>
+
+
+<p>The full technique is explained here: <a href="http://ferdychristant.com/blog//archive/DOMM-7QJPM7">http://ferdychristant.com/blog//archive/DOMM-7QJPM7</a> I'm only going to explain how to use my library to work with the data in this way.</p>
+
+<p>First, grab yourself a copy of the library from <a href="https://github.com/jrmadsen67/mahana-hierarchy">github </a>  or  <a href="https://packagist.org/packages/jrmadsen67/mahana-hierarchy">composer</a> and pop it into your libraries directory. It's all one file, no messy set up.</p>
+
+<p>To make this technique work, your table needs to have a primary key, a parent_id, and two fields we'll call "lineage" and "deep", although you can configure those to be what you want. (This is in addition to your actual comment field, the link to the outside table (article_id), and any other data you want to track)</p>
+
+<p>Notice variables at the top of the library:</p>
+
+<pre class="code">
+//set this to whatever is most useful for you
+protected $db = 'default';
+protected $table = 'hierarchy';
+//if you rename your table fields, also rename them here
+protected $primary_key = 'id';
+protected $parent_id = 'parent_id';
+protected $lineage = 'lineage';
+protected $deep = 'deep';
+</pre>
+
+<p>This allows you to use any set of names to wish - just make sure they match the functionality. So if you have an existing table with parent_id's you can "snap it" right onto to your table.</p>
+
+<p><strong>IMPORTANT NOTE!</strong>: I have added the ability to use a $config and initialize() function so that you can use multiple instances of the library. This works like most CodeIgniter libraries - $config is an array, the keys of which are the variables listed directly above. If you use two configurations of the library in the same page, set up the second one by calling: </p> 
+
+<pre class="code">
+$config = array('table'=>'hierarchy');
+$this->load->library('mahana_hierarchy');
+$this->mahana_hierarchy->initialize($config); 
+
+$config = array('table'=>'products');
+$this->mahana_hierarchy->initialize($config);
+</pre>
+
+<p>You can pick which variables need overridden - you don't need to set them all</p>
+
+<p>If you are adding this to an existing dataset, the next thing you want to do is update all your table rows to have a lineage and deep value, by running:</p>
+
+<pre class="code">
+$this->mahana_hierarchy->resync();
+</pre>
+
+<p>This will read over all your table rows and set the appropriate values.</p>
+
+<p>And now...you are ready to use it!</p>
+
+<p>So, to insert data, we need to feed an array of the normal record data - i.e., comment body, create date, etc. If you include a parent id it will build from that, otherwise it will assume this is a new top-level record. No need to do anything with lineage or deep - the library will calculate all of that for you.</p>
+
+<p>Example:</p>
+
+<pre class="code">
+//add a top-level parent
+
+$new_comment['name'] = "A new parent record";
+
+$insert_id = $this->mahana_hierarchy->insert($new_comment);
+
+// add a child
+
+$new_comment['name'] = "A new parent record";
+
+$new_comment['parent_id'] = $insert_id;
+
+$this->mahana_hierarchy->insert($new_comment);
+</pre>
+
+<p>If we want to display this data,</p>
+
+<pre class = "code" >
+
+
+$data = $this->mahana_hierarchy->get();         
+var_dump($data);
+
+(this example is showing the where clause usage - it assumes you've been building up your data and have an article_id = 5)
+
+$data = $this->mahana_hierarchy->where(array('article_id '=>5))->get();         
+var_dump($data);
+
+</pre>
+
+<p>The get() function returns all the records from a certain parent (optional) down. We can use the where() function as a chainable method that simply uses the CodeIgniter's Active record class where(). If we needed to start at a specific point in the hierarchy, pass that record's id as a parameter in get();</p>
+
+<p>Additional functions include:</p>
+
+<p><b> get_one($id)  </b></p>
+
+<p>Returns a single record</p>
+
+<p><b> get_children($parent_id)  </b></p>
+
+<p>Returns all direct children of the parent, but no other descendents</p>
+
+<p><b> get_descendents($parent_id)  </b></p>
+
+<p>Returns all the descendents of the given parent (but not the parent)</p>
+
+<p><b>get_grouped_children($top_id=0)</b></p>
+
+<p>Fetch all descendent records based on the parent id, ordered by their lineage, and groups them as a mulit-dimensional array.</p>
+
+<p><b>get_ancestors($id, $remove_this = false)</b><p>
+
+<p>Returns an array of all the ancestors of the given record. Second parameter will leave out the requesting record or not </p>
+
+<p><b>get_parent($id)</b><p>
+
+<p>Returns an row array of the parent of the given record. </p>
+
+<p><b>insert($data)</b></p>
+
+<p>Inserts new record, as explained above</p>
+
+<p><b>update($id, $data)</b></p>
+
+<p>This is a simple Active Record update, and will not resync all your lineages! Run resync if you need to do that</p>
+
+<p><b>delete($id, $with_children=false)</b></p>
+
+<p>Delete a record. It will NOT delete its children as well unless you tell it to</p>
+
+<p><b>max_deep()</b></p>
+
+<p>Just lets you know how deep your child records are getting</p>
+
+<p>Hope that proves useful - as always, interested in comments & code pull requests</p>
+
+
+<br /> <br />
+
+<blockquote class="twitter-tweet"><p>New tut &amp; @<a href="https://twitter.com/codeigniter">codeigniter</a> library for using hierarchical data (i.e., nest comments) <a href="http://t.co/rHlfPoE2" title="http://www.codebyjeff.com/blog/2012/10/nested-data-with-mahana-hierarchy-library">codebyjeff.com/blog/2012/10/n…</a></p>&mdash; Jeff Madsen (@codebyjeff) <a href="https://twitter.com/codebyjeff/status/260257331584053248" data-datetime="2012-10-22T05:52:37+00:00">October 22, 2012</a></blockquote>
+<script src="../../../../platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+
+<style>
+.twitter-tweet-rendered{
+padding-left: 20px;
+}
+.twt-standard{
+background-color: #E1CFB9 !important;
+border: 1px solid #77947E !important;				
+}
+</style>
+
+
+
+
+	<script type="text/javascript">
+		
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-35407111-1']);
+		  _gaq.push(['_trackPageview']);
+		
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+		
+		</script>    		</div>
+    		<div class="col-md-3">
+    			  
+<div id="infobox" style="margin-top:50px;">
+  <h3 style="margin-left:30px;">Contact me</h3> 
+  <ul style="list-style-type:none;line-height:1.5;margin-left: 0 !important;">
+   <li>
+    <span>email:</span> <a href="mailto:jrmadsen67@gmail.com">Jeff Madsen</a></li>
+   <li>
+    <span>linked in:</span> <a href="http://jp.linkedin.com/pub/jeff-madsen/3/a40/667">Jeff Madsen</a></li>
+   <li>
+    <span>twitter:</span> <a href="https://twitter.com/#!/codebyjeff">codebyjeff</a></li>
+   <li>
+    <span>github:</span> <a href="https://github.com/jrmadsen67">codebyjeff</a></li>
+  </ul>
+ </div>
+
+
+
+    		</div>
+    	</div>
+    </div>
+</div>        </section>
+
+        <!-- Footer -->
+        <footer id="layout-footer">
+            <div id="footer">
+    <div class="container">
+        <p class="muted credit">&copy; 2017 Jeff Madsen.</p>
+    </div>
+</div>        </footer>
+
+        <!-- Scripts -->
+        <script src="../../../combine/32a80e0064d45d6b091e699b46f4d717-1549348009"></script>
+        <script src="../../../modules/system/assets/js/framework.js"></script>
+<script src="../../../modules/system/assets/js/framework.extras.js"></script>
+<link href="../../../modules/system/assets/css/framework.extras.css" rel="stylesheet">
+        
+
+
+    </body>
+
+<!-- Mirrored from oldblog.codebyjeff.com/blog/2012/10/nested-data-with-mahana-hierarchy-library by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 18 Sep 2021 03:08:30 GMT -->
+</html>
